@@ -17,6 +17,13 @@
 # Set the reference directory for source file relative paths (by default the value is script directory path)
 set origin_dir [file dirname [info script]]
 
+# Change current directory to project folder
+cd [file dirname [info script]]
+
+# Save old sources
+file delete -force PS2.srcs.backup
+file rename PS2.srcs PS2.srcs.backup
+
 # Use origin directory path location variable, if specified in the tcl shell
 if { [info exists ::origin_dir_loc] } {
   set origin_dir $::origin_dir_loc
@@ -69,7 +76,10 @@ if { $::argc > 0 } {
 set orig_proj_dir "[file normalize "$origin_dir/"]"
 
 # Create project
-create_project PS2 ./PS2 -part xc7z010clg400-1 -force
+create_project PS2 . -part xc7z010clg400-1 -force
+# Restore old sources
+file delete -force PS2.srcs
+file rename PS2.srcs.backup PS2.srcs
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -178,8 +188,5 @@ set_property "steps.write_bitstream.args.verbose" "0" $obj
 
 # set the current impl run
 current_run -implementation [get_runs impl_1]
-
-# Change current directory to project folder
-cd [file dirname [info script]]
 
 puts "INFO: Project created:PS2"
